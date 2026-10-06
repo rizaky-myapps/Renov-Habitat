@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administration — Rénov'Habitat</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#860308">
+  <!-- Cette page manipule un code d'accès : on n'autorise que nos propres scripts et l'API GitHub. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.github.com; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin">
+  <header class="site-header admin__header">
+    <div class="container header__inner">
+      <a class="brand" href="../index.html" aria-label="Retour au site Rénov'Habitat">
+        <img src="../assets/img/logo-mark.png" alt="Rénov'Habitat" width="447" height="332">
+      </a>
+      <span class="admin__badge">Administration</span>
+      <div class="admin__actions">
+        <a class="btn btn--ghost btn--sm" href="../index.html" target="_blank" rel="noopener">Voir le site</a>
+        <button class="btn btn--ghost btn--sm" type="button" id="btn-logout" hidden>Se déconnecter</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin__main" id="contenu">
+
+    <!-- ============ CONNEXION ============ -->
+    <section class="login" id="view-login" aria-labelledby="login-title">
+      <h1 id="login-title">Espace administration</h1>
+      <p class="muted">Pour ajouter ou modifier vos photos avant/après, entrez votre code d'accès GitHub. Il reste dans ce navigateur et n'est envoyé qu'à GitHub.</p>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="token">Code d'accès GitHub</label>
+          <input id="token" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="remember">
+          <span>Rester connecté sur cet appareil</span>
+        </label>
+        <button class="btn btn--primary btn--block" type="submit" id="login-submit">Se connecter</button>
+        <p class="form__status is-error" id="login-error" role="alert"></p>
+      </form>
+
+      <details class="help">
+        <summary>Comment obtenir mon code d'accès ?</summary>
+        <ol>
+          <li>Connectez-vous à GitHub avec le compte propriétaire du site, puis ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">la création d'un jeton d'accès</a>.</li>
+          <li>Donnez-lui un nom (par exemple « Rénov'Habitat admin ») et choisissez une durée de validité.</li>
+          <li><strong>Repository access</strong> : « Only select repositories », puis le dépôt du site (<code id="help-repo">Renov-Habitat</code>).</li>
+          <li><strong>Permissions → Repository permissions → Contents</strong> : « Read and write ».</li>
+          <li>Cliquez sur « Generate token », copiez le code (il commence par <code>github_pat_</code>) et collez-le ci-dessus. GitHub ne l'affiche qu'une seule fois.</li>
+        </ol>
+        <p class="muted">Ne partagez jamais ce code : il permet de modifier le site. Une fois expiré, il suffit d'en générer un nouveau.</p>
+      </details>
+    </section>
+
+    <!-- ============ GESTION DES RÉALISATIONS ============ -->
+    <section id="view-app" hidden aria-labelledby="app-title">
+      <div class="admin__bar">
+        <div>
+          <h1 id="app-title">Gestion des réalisations</h1>
+          <p class="muted">Ajoutez, modifiez et classez vos photos avant/après. La 1<sup>re</sup> réalisation s'affiche en haut de l'accueil, les suivantes dans « Réalisations ».</p>
+        </div>
+        <button class="btn btn--primary" type="button" id="btn-add">+ Ajouter une réalisation</button>
+      </div>
+
+      <div class="notice" id="notice" role="status" hidden></div>
+
+      <div class="order-bar" id="order-bar" hidden>
+        <span>L'ordre a changé : pensez à l'enregistrer.</span>
+        <span class="order-bar__btns">
+          <button class="btn btn--ghost btn--sm" type="button" id="order-cancel">Annuler</button>
+          <button class="btn btn--primary btn--sm" type="button" id="order-save">Enregistrer l'ordre</button>
+        </span>
+      </div>
+
+      <div class="admin-grid" id="list"></div>
+      <p class="empty" id="list-empty" hidden>Aucune réalisation pour le moment. Cliquez sur « Ajouter une réalisation » pour publier votre première transformation.</p>
+    </section>
+  </main>
+
+  <!-- ============ AJOUT / MODIFICATION ============ -->
+  <dialog id="dlg-edit" aria-labelledby="edit-title">
+    <form id="edit-form" novalidate>
+      <div class="dlg__head">
+        <h2 id="edit-title">Nouvelle réalisation</h2>
+        <button class="dlg__close" type="button" id="edit-close" aria-label="Fermer">×</button>
+      </div>
+
+      <div class="dlg__body">
+        <div class="field">
+          <label for="e-title">Titre</label>
+          <input id="e-title" type="text" maxlength="80" required placeholder="Ex. : Fenêtres remplacées par de l'aluminium">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="e-cat">Catégorie</label>
+            <select id="e-cat"></select>
+          </div>
+          <div class="field" id="e-newcat-wrap" hidden>
+            <label for="e-newcat">Nom de la nouvelle catégorie</label>
+            <input id="e-newcat" type="text" maxlength="30" placeholder="Ex. : Volets">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="e-desc">Description</label>
+          <textarea id="e-desc" rows="4" maxlength="400" required placeholder="Quelques lignes pour décrire le chantier."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="e-tags">Mots-clés <span class="muted">(facultatif, séparés par des virgules)</span></label>
+          <input id="e-tags" type="text" placeholder="Ex. : Chêne, Sur mesure, Pose comprise">
+        </div>
+
+        <div class="picks">
+          <div class="pick" data-side="before">
+            <span class="pick__label">Photo avant</span>
+            <label class="drop" for="e-before">
+              <img class="drop__img" alt="" hidden>
+              <span class="drop__hint"><strong>Choisir une photo</strong><small>ou la glisser ici</small></span>
+            </label>
+            <input id="e-before" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp">
+            <p class="pick__info"></p>
+          </div>
+          <div class="pick" data-side="after">
+            <span class="pick__label">Photo après</span>
+            <label class="drop" for="e-after">
+              <img class="drop__img" alt="" hidden>
+              <span class="drop__hint"><strong>Choisir une photo</strong><small>ou la glisser ici</small></span>
+            </label>
+            <input id="e-after" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp">
+            <p class="pick__info"></p>
+          </div>
+        </div>
+        <p class="muted pick__tip">Pour une comparaison réussie, prenez l'avant et l'après du même endroit, au même cadrage. Les photos sont automatiquement redimensionnées pour un site rapide.</p>
+        <p class="notice notice--warn" id="e-ratio" hidden>Les deux photos n'ont pas le même format : le comparateur risque d'être décalé. Reprenez-les avec le même cadrage si possible.</p>
+
+        <div class="preview">
+          <span class="pick__label">Aperçu</span>
+          <div id="e-preview" class="preview__box"><p class="muted">Ajoutez les deux photos pour voir l'aperçu du comparateur.</p></div>
+        </div>
+
+        <p class="form__status" id="e-status" role="status"></p>
+      </div>
+
+      <div class="dlg__foot">
+        <button class="btn btn--ghost" type="button" id="edit-cancel">Annuler</button>
+        <button class="btn btn--primary" type="submit" id="edit-submit">Publier</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ============ SUPPRESSION ============ -->
+  <dialog id="dlg-delete" aria-labelledby="del-title">
+    <div class="dlg__head"><h2 id="del-title">Supprimer cette réalisation ?</h2></div>
+    <div class="dlg__body">
+      <p>« <strong id="del-name"></strong> » et ses deux photos seront retirées du site.</p>
+      <p class="muted">L'historique GitHub permet de retrouver les fichiers si besoin.</p>
+      <p class="form__status" id="del-status" role="status"></p>
+    </div>
+    <div class="dlg__foot">
+      <button class="btn btn--ghost" type="button" id="del-cancel">Annuler</button>
+      <button class="btn btn--danger" type="button" id="del-confirm">Supprimer</button>
+    </div>
+  </dialog>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/slider.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

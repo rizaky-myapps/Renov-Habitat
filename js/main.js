@@ -5,6 +5,7 @@
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const SITE = window.SITE || {};
+  const { esc, build: buildSlider } = window.RHSlider;
 
   /* ---------- Infos entreprise (js/config.js) ---------- */
   $$('[data-site]').forEach((el) => {
@@ -35,114 +36,94 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   window.matchMedia('(min-width: 861px)').addEventListener('change', () => setMenu(false));
 
-  /* Lien actif selon la section visible */
-  const links = $$('.nav a[href^="#"]:not(.nav__cta)');
-  const sections = links.map((a) => $(a.getAttribute('href'))).filter(Boolean);
-  if ('IntersectionObserver' in window) {
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        links.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === '#' + entry.target.id));
+  /* ---------- Apparition au scroll ---------- */
+  const revealObserver = ('IntersectionObserver' in window && !reduceMotion)
+    ? new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-in');
+          revealObserver.unobserve(entry.target);
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' })
+    : null;
+  const reveal = (els) => els.forEach((el) => (revealObserver ? revealObserver.observe(el) : el.classList.add('is-in')));
+  reveal($$('.reveal'));
+
+  /* ---------- Réalisations (data/projects.json) ---------- */
+  const heroHost = $('[data-hero]');
+  const grids = $$('[data-projects]');
+
+  if (heroHost || grids.length) {
+    fetch('data/projects.json', { cache: 'no-cache' })
+      .then((res) => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then((data) => render(data.projects || [], data.categories || {}))
+      .catch((err) => {
+        console.error('Réalisations indisponibles :', err);
+        if (heroHost) hideHero();
+        grids.forEach((g) => { g.innerHTML = '<p class="empty">Impossible de charger les réalisations pour le moment. Merci de réessayer dans un instant.</p>'; });
       });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    sections.forEach((s) => spy.observe(s));
   }
 
-  /* ---------- Comparateur avant / après ---------- */
-  const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const ARROWS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>';
+  function hideHero() {
+    const visual = heroHost.closest('.hero__visual');
+    if (visual) visual.hidden = true;
+    const hero = heroHost.closest('.hero');
+    if (hero) hero.classList.add('hero--solo');
+  }
 
-  function buildSlider(host) {
-    const d = host.dataset;
-    const lazy = d.eager === 'true' ? '' : ' loading="lazy"';
-    host.innerHTML =
-      `<img class="ba__img" src="${esc(d.after)}" alt="${esc(d.altAfter)}" width="1200" height="800" draggable="false"${lazy}>` +
-      `<img class="ba__img ba__img--before" src="${esc(d.before)}" alt="${esc(d.altBefore)}" width="1200" height="800" draggable="false"${lazy}>` +
-      '<span class="ba__tag ba__tag--before">Avant</span>' +
-      '<span class="ba__tag ba__tag--after">Après</span>' +
-      `<span class="ba__handle" aria-hidden="true"><span class="ba__knob">${ARROWS}</span></span>` +
-      `<input class="ba__range" type="range" min="0" max="100" step="1" value="50" aria-label="Comparer avant et après : ${esc(d.altAfter)}">`;
-
-    const range = $('.ba__range', host);
-    let dragging = false;
-    let hintFrame = 0;
-
-    const setPos = (p) => {
-      const v = Math.max(0, Math.min(100, p));
-      host.style.setProperty('--pos', v + '%');
-      range.value = Math.round(v);
-    };
-    const fromPointer = (e) => {
-      const r = host.getBoundingClientRect();
-      setPos(((e.clientX - r.left) / r.width) * 100);
-    };
-    const stopHint = () => { cancelAnimationFrame(hintFrame); hintFrame = 0; };
-
-    host.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      stopHint();
-      dragging = true;
-      host.classList.add('is-dragging');
-      host.setPointerCapture(e.pointerId);
-      fromPointer(e);
-    });
-    host.addEventListener('pointermove', (e) => { if (dragging) fromPointer(e); });
-    const end = () => { dragging = false; host.classList.remove('is-dragging'); };
-    host.addEventListener('pointerup', end);
-    host.addEventListener('pointercancel', end);
-    range.addEventListener('input', () => { stopHint(); setPos(Number(range.value)); });
-
-    /* Petit balayage d'invitation, une seule fois, quand le comparateur devient visible */
-    if (!reduceMotion && 'IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        if (!entries[0].isIntersecting) return;
-        io.disconnect();
-        const keyframes = [50, 30, 70, 50];
-        const seg = 520;
-        const t0 = performance.now() + 350;
-        const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-        const tick = (now) => {
-          const t = Math.max(0, now - t0);
-          const i = Math.floor(t / seg);
-          if (i >= keyframes.length - 1) { setPos(keyframes[keyframes.length - 1]); hintFrame = 0; return; }
-          const k = ease((t % seg) / seg);
-          setPos(keyframes[i] + (keyframes[i + 1] - keyframes[i]) * k);
-          hintFrame = requestAnimationFrame(tick);
-        };
-        hintFrame = requestAnimationFrame(tick);
-      }, { threshold: 0.6 });
-      io.observe(host);
+  function render(projects, categories) {
+    /* Hero : la 1ʳᵉ réalisation de la liste */
+    if (heroHost) {
+      const p = projects[0];
+      if (!p) {
+        hideHero();
+      } else {
+        Object.assign(heroHost.dataset, {
+          before: p.before, after: p.after,
+          altBefore: p.altBefore || p.title + ' — avant', altAfter: p.altAfter || p.title + ' — après'
+        });
+        buildSlider(heroHost);
+      }
     }
-  }
 
-  /* ---------- Réalisations ---------- */
-  const projects = Array.isArray(window.PROJECTS) ? window.PROJECTS : [];
-  const categories = window.CATEGORIES || {};
-  const grid = $('#projects');
-  const filters = $('#filters');
+    grids.forEach((grid) => {
+      const offset = Number(grid.dataset.offset || 0);
+      const limit = Number(grid.dataset.limit || projects.length);
+      const list = projects.slice(offset, offset + limit);
 
-  if (grid && projects.length) {
-    const frag = document.createDocumentFragment();
-    projects.forEach((p, i) => {
-      const card = document.createElement('article');
-      card.className = 'project reveal';
-      card.dataset.category = p.category;
-      card.style.setProperty('--d', (i % 3) * 90 + 'ms');
-      card.innerHTML =
-        `<div class="ba" data-before="${esc(p.before)}" data-after="${esc(p.after)}" data-alt-before="${esc(p.altBefore || 'Avant')}" data-alt-after="${esc(p.altAfter || 'Après')}"></div>` +
-        '<div class="project__body">' +
-          `<p class="project__cat">${esc(categories[p.category] || p.category)}</p>` +
-          `<h3>${esc(p.title)}</h3>` +
-          `<p class="project__desc">${esc(p.description)}</p>` +
-          (p.tags && p.tags.length ? `<ul class="tags">${p.tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : '') +
-        '</div>';
-      frag.appendChild(card);
-    });
-    grid.appendChild(frag);
+      if (!list.length) {
+        const section = grid.closest('[data-hide-when-empty]');
+        if (section) { section.hidden = true; return; }
+        grid.innerHTML = '<p class="empty">Nos réalisations seront bientôt en ligne.</p>';
+        return;
+      }
 
-    /* Filtres : uniquement les catégories présentes */
-    const present = Object.keys(categories).filter((k) => projects.some((p) => p.category === k));
-    if (filters && present.length > 1) {
+      const frag = document.createDocumentFragment();
+      list.forEach((p, i) => {
+        const card = document.createElement('article');
+        card.className = 'project reveal';
+        card.dataset.category = p.category;
+        card.style.setProperty('--d', (i % 3) * 90 + 'ms');
+        card.innerHTML =
+          `<div class="ba" data-before="${esc(p.before)}" data-after="${esc(p.after)}" data-alt-before="${esc(p.altBefore || p.title + ' — avant')}" data-alt-after="${esc(p.altAfter || p.title + ' — après')}"></div>` +
+          '<div class="project__body">' +
+            `<p class="project__cat">${esc(categories[p.category] || p.category)}</p>` +
+            `<h3>${esc(p.title)}</h3>` +
+            `<p class="project__desc">${esc(p.description)}</p>` +
+            (p.tags && p.tags.length ? `<ul class="tags">${p.tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : '') +
+          '</div>';
+        frag.appendChild(card);
+      });
+      grid.textContent = '';
+      grid.appendChild(frag);
+      $$('.ba[data-before]', grid).forEach(buildSlider);
+      reveal($$('.reveal', grid));
+
+      /* Filtres (page Réalisations) : uniquement les catégories présentes */
+      const filters = grid.id ? $('#filters') : null;
+      if (!filters) return;
+      const present = Object.keys(categories).filter((k) => list.some((p) => p.category === k));
+      if (present.length < 2) { filters.remove(); return; }
       const mk = (key, label, pressed) =>
         `<button class="chip" type="button" data-filter="${esc(key)}" aria-pressed="${pressed}">${esc(label)}</button>`;
       filters.innerHTML = mk('all', 'Tous', true) + present.map((k) => mk(k, categories[k], false)).join('');
@@ -157,26 +138,7 @@
           if (show) card.classList.add('is-in');
         });
       });
-    } else if (filters) {
-      filters.remove();
-    }
-  }
-
-  $$('.ba[data-before]').forEach(buildSlider);
-
-  /* ---------- Apparition au scroll ---------- */
-  const reveals = $$('.reveal');
-  if ('IntersectionObserver' in window && !reduceMotion) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-in');
-        io.unobserve(entry.target);
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    reveals.forEach((el) => io.observe(el));
-  } else {
-    reveals.forEach((el) => el.classList.add('is-in'));
+    });
   }
 
   /* ---------- Formulaire de contact (ouvre la messagerie) ---------- */

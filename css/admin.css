@@ -1,0 +1,130 @@
+/* =====================================================================
+   Administration — complète css/style.css (variables, boutons, champs)
+   ===================================================================== */
+
+.admin__header .header__inner { gap: 1rem; }
+.admin__badge {
+  margin-right: auto; margin-left: .4rem; padding: .4rem .75rem; border-radius: 999px;
+  background: var(--bordeaux-soft); color: var(--bordeaux);
+  font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+}
+.admin__actions { display: flex; align-items: center; gap: .6rem; }
+.admin__main { padding-block: clamp(2rem, 5vw, 3.5rem) 5rem; min-height: 70vh; }
+.muted { color: var(--muted); font-size: .92rem; }
+.muted sup { font-size: .7em; }
+[hidden] { display: none !important; }
+
+.btn--sm { padding: .62rem 1.05rem; font-size: .85rem; }
+.btn--danger { border-color: #b3261e; color: #b3261e; background: transparent; }
+.btn--danger:hover { background: #b3261e; color: #fff; }
+.btn[disabled] { opacity: .55; cursor: not-allowed; pointer-events: none; }
+
+/* ---------- Connexion ---------- */
+.login {
+  max-width: 560px; margin: clamp(.5rem, 4vw, 2.5rem) auto 0; padding: clamp(1.5rem, 4vw, 2.4rem);
+  background: var(--white); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
+}
+.login h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); }
+.login .muted { margin: .8rem 0 1.6rem; font-size: .98rem; }
+.login form { display: grid; gap: 1.1rem; }
+.check { display: flex; align-items: center; gap: .6rem; font-size: .92rem; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--bordeaux); }
+.help { margin-top: 1.6rem; padding-top: 1.2rem; border-top: 1px solid var(--line); font-size: .93rem; }
+.help summary { cursor: pointer; font-weight: 600; color: var(--bordeaux); }
+.help ol { margin: 1rem 0 .6rem; padding-left: 1.2rem; list-style: decimal; display: grid; gap: .55rem; color: var(--ink); }
+.help a { color: var(--bordeaux); }
+.help code { padding: .1rem .4rem; background: var(--sand); border-radius: 6px; font-size: .88em; }
+
+/* ---------- Barre de titre + notices ---------- */
+.admin__bar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.2rem; margin-bottom: 1.6rem; }
+.admin__bar h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.admin__bar .muted { margin-top: .5rem; max-width: 62ch; }
+
+.notice {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; margin: 0 0 1.2rem; padding: .9rem 1.1rem;
+  border-radius: var(--radius-sm); background: #e7f3ea; color: #1f5a31; border: 1px solid #c4e1cc; font-size: .94rem;
+}
+.notice a { color: inherit; font-weight: 600; }
+.notice--error { background: #fbeae8; color: #8e1d15; border-color: #f0c6c2; }
+.notice--info { background: var(--sand); color: var(--ink); border-color: var(--line); }
+.notice--warn { background: #fff4de; color: #7a4d00; border-color: #f3dca6; margin: 1rem 0 0; }
+
+.order-bar {
+  position: sticky; top: calc(var(--header-h) + .6rem); z-index: 20; display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: .8rem; margin-bottom: 1.2rem; padding: .8rem 1.1rem;
+  background: var(--ink); color: #fff; border-radius: var(--radius-sm); box-shadow: var(--shadow); font-size: .93rem;
+}
+.order-bar__btns { display: flex; gap: .5rem; }
+.order-bar .btn--ghost { border-color: rgb(255 255 255 / .5); color: #fff; }
+.order-bar .btn--ghost:hover { background: #fff; color: var(--ink); }
+
+/* ---------- Liste des réalisations ---------- */
+.admin-grid { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
+.acard { display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.acard .ba { border-radius: 0; }
+.acard__rank {
+  position: absolute; z-index: 5; left: 12px; bottom: 12px; display: flex; gap: .4rem; pointer-events: none;
+}
+.acard__rank span { padding: .25rem .6rem; border-radius: 999px; background: rgb(255 255 255 / .94); color: var(--ink); font-size: .72rem; font-weight: 600; box-shadow: 0 2px 8px rgb(0 0 0 / .2); }
+.acard__rank .is-feature { background: var(--bordeaux); color: #fff; }
+.acard__media { position: relative; }
+.acard__body { display: flex; flex-direction: column; gap: .5rem; padding: 1.1rem 1.2rem 1.2rem; flex: 1; }
+.acard__cat { font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--bordeaux); }
+.acard h2 { font-size: 1.2rem; }
+.acard__desc { color: var(--muted); font-size: .9rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.acard__actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: auto; padding-top: .8rem; align-items: center; }
+.acard__actions .spacer { flex: 1; }
+.icon-btn {
+  width: 38px; height: 38px; display: grid; place-items: center; border: 1.5px solid var(--line); border-radius: 50%;
+  background: var(--paper); color: var(--ink); cursor: pointer; font-size: 1rem; line-height: 1; transition: border-color .2s, background .2s, color .2s;
+}
+.icon-btn:hover:not([disabled]) { border-color: var(--ink); }
+.icon-btn[disabled] { opacity: .35; cursor: not-allowed; }
+
+/* ---------- Fenêtres de dialogue ---------- */
+dialog {
+  width: min(780px, calc(100% - 1.5rem)); max-height: calc(100dvh - 1.5rem); padding: 0; border: 0; border-radius: 20px;
+  background: var(--paper); color: var(--ink); box-shadow: 0 30px 80px -20px rgb(0 0 0 / .5); overflow: auto;
+}
+dialog::backdrop { background: rgb(26 24 22 / .55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+#dlg-delete { width: min(480px, calc(100% - 1.5rem)); }
+.dlg__head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.2rem 1.6rem; background: var(--paper); border-bottom: 1px solid var(--line); }
+.dlg__head h2 { font-size: 1.5rem; }
+.dlg__close { width: 38px; height: 38px; border: 0; border-radius: 50%; background: var(--sand); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.dlg__close:hover { background: var(--line); }
+.dlg__body { display: grid; gap: 1.1rem; padding: 1.5rem 1.6rem; }
+.dlg__foot { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: .7rem; padding: 1rem 1.6rem; background: var(--paper); border-top: 1px solid var(--line); }
+.dlg__body .field label .muted { font-weight: 400; }
+
+/* ---------- Choix des photos ---------- */
+.picks { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }
+.pick { display: grid; gap: .5rem; align-content: start; min-width: 0; }
+.pick__label { font-size: .85rem; font-weight: 600; }
+.drop {
+  position: relative; display: grid; place-items: center; aspect-ratio: 3 / 2; overflow: hidden; cursor: pointer;
+  border: 2px dashed #cfc5b2; border-radius: var(--radius-sm); background: var(--white); text-align: center; transition: border-color .2s, background .2s;
+}
+.drop:hover, .drop.is-over { border-color: var(--bordeaux); background: var(--bordeaux-soft); }
+.pick:focus-within .drop { outline: 3px solid var(--bordeaux); outline-offset: 2px; }
+.drop__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.drop__hint { display: grid; gap: .15rem; padding: .6rem; color: var(--muted); font-size: .85rem; }
+.drop__hint strong { color: var(--bordeaux); }
+.drop.has-img .drop__hint { position: absolute; inset: auto 0 0 0; padding: .45rem; background: rgb(26 24 22 / .65); color: #fff; }
+.drop.has-img .drop__hint strong { color: #fff; }
+.drop.has-img .drop__hint small { display: none; }
+.pick__info { min-height: 1.2em; font-size: .78rem; color: var(--muted); overflow-wrap: anywhere; }
+.pick__info.is-error { color: #b3261e; }
+.pick__tip { margin-top: -.4rem; }
+.preview { display: grid; gap: .5rem; }
+.preview__box { border-radius: var(--radius-sm); overflow: hidden; background: var(--sand); }
+.preview__box > p { padding: 1.4rem; text-align: center; }
+
+@media (max-width: 560px) {
+  .picks { grid-template-columns: 1fr; }
+  .admin__badge { display: none; }
+  .admin__header .brand { margin-right: auto; }
+  .dlg__head, .dlg__body, .dlg__foot { padding-inline: 1.1rem; }
+}
+
+/* Pendant une publication, on fige les actions de la liste */
+.is-busy .acard button, .is-busy #btn-add, .is-busy #order-bar button { pointer-events: none; opacity: .6; }

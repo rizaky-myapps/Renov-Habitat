@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact & devis gratuit — Rénov'Habitat</title>
+  <meta name="description" content="Contactez Rénov'Habitat pour votre projet de menuiserie ou de rénovation : visite et devis gratuits.">
+  <meta name="theme-color" content="#860308">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Contact & devis gratuit — Rénov'Habitat">
+  <meta property="og:description" content="Contactez Rénov'Habitat pour votre projet de menuiserie ou de rénovation : visite et devis gratuits.">
+  <meta property="og:image" content="assets/img/logo-original.png">
+  <meta property="og:locale" content="fr_FR">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+  <!-- ============ EN-TÊTE ============ -->
+  <header class="site-header" id="top">
+    <div class="container header__inner">
+      <a class="brand" href="index.html" aria-label="Rénov'Habitat — accueil">
+        <img src="assets/img/logo-mark.png" alt="Rénov'Habitat" width="447" height="332">
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <a href="index.html">Accueil</a>
+        <a href="savoir-faire.html">Savoir-faire</a>
+        <a href="realisations.html">Réalisations</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+        <a class="btn btn--primary nav__cta" href="contact.html">Devis gratuit</a>
+      </nav>
+
+      <button class="nav-toggle" type="button" aria-controls="nav" aria-expanded="false" aria-label="Ouvrir le menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="contenu">
+
+    <section class="page-hero">
+      <svg class="hero__roof" viewBox="0 0 520 330" aria-hidden="true" focusable="false">
+        <polyline points="8,322 8,160 150,160 150,60 210,60 210,100 340,8 512,150" fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+      </svg>
+      <div class="container page-hero__inner">
+        <p class="eyebrow">Contact</p>
+        <h1>Parlons de votre projet.</h1>
+        <p class="lead">Décrivez-nous votre projet : nous revenons vers vous rapidement pour fixer une visite et établir votre devis gratuit.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container contact__grid">
+        <div class="contact__info reveal">
+          <h2>Nos coordonnées</h2>
+
+          <ul class="contact__list">
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>
+              <div><span class="label">Téléphone</span><a data-site="phone" data-site-href="tel" href="tel:0600000000">06 00 00 00 00</a></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+              <div><span class="label">E-mail</span><a data-site="email" data-site-href="mail" href="mailto:contact@votre-domaine.fr">contact@votre-domaine.fr</a></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <div><span class="label">Zone d'intervention</span><span data-site="zone">Votre ville et ses alentours</span></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <div><span class="label">Horaires</span><span data-site="hours">Du lundi au vendredi, 8h – 18h</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <form class="form reveal" id="contact-form" novalidate>
+          <div class="field">
+            <label for="f-name">Nom et prénom</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-email">E-mail</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="f-phone">Téléphone</label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel">
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-type">Type de projet</label>
+            <select id="f-type" name="type">
+              <option>Fenêtres / baies vitrées</option>
+              <option>Porte d'entrée / intérieure</option>
+              <option>Escalier / garde-corps</option>
+              <option>Placard / dressing</option>
+              <option>Cuisine / agencement</option>
+              <option>Terrasse / pergola</option>
+              <option>Autre projet</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-msg">Votre projet</label>
+            <textarea id="f-msg" name="message" rows="5" required></textarea>
+          </div>
+          <button class="btn btn--primary btn--block" type="submit">Envoyer ma demande</button>
+          <p class="form__status" id="form-status" role="status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ PIED DE PAGE ============ -->
+  <footer class="site-footer">
+    <div class="container footer__inner">
+      <img class="footer__logo" src="assets/img/logo-mark-light.png" alt="Rénov'Habitat" width="447" height="332" loading="lazy">
+      <p class="footer__tagline">Les professionnels de la rénovation</p>
+      <nav class="footer__nav" aria-label="Pied de page">
+        <a href="index.html">Accueil</a>
+        <a href="savoir-faire.html">Savoir-faire</a>
+        <a href="realisations.html">Réalisations</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <p class="footer__contact">
+        <a data-site="phone" data-site-href="tel" href="tel:0600000000">06 00 00 00 00</a>
+        <a data-site="email" data-site-href="mail" href="mailto:contact@votre-domaine.fr">contact@votre-domaine.fr</a>
+      </p>
+      <p class="footer__copy">© <span id="year">2026</span> Rénov'Habitat — Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/slider.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
